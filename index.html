@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Anatomy Audio Visualizer</title>
   
   <!-- Loads Google's 3D Model Viewer engine -->
@@ -55,7 +56,12 @@
   </model-viewer>
 
   <div class="player-box">
-    <audio id="anatomyAudio" controls src="audio.mp3"></audio>
+    <!-- Updated audio element with explicit MIME type sources -->
+    <audio id="anatomyAudio" controls preload="auto">
+      <source src="audio.mp3" type="audio/mp4">
+      <source src="audio.mp3" type="audio/mpeg">
+      Your browser does not support the audio element.
+    </audio>
     <div id="status" class="status-text">Press Play to Start</div>
   </div>
 
