@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Anatomy Audio Visualizer</title>
+  
+  <!-- Loads Google's 3D Model Viewer engine -->
+  <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #121212;
+      color: #ffffff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 { color: #00e5ff; }
+    model-viewer {
+      width: 100%;
+      max-width: 700px;
+      height: 500px;
+      background-color: #1e1e1e;
+      border-radius: 12px;
+    }
+    .player-box {
+      margin-top: 20px;
+      text-align: center;
+    }
+    .status-text {
+      font-size: 1.3rem;
+      font-weight: bold;
+      color: #00e5ff;
+      margin-top: 10px;
+      height: 30px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>3D Anatomy Audio Sync</h1>
+
+  <!-- 3D Viewer Element -->
+  <model-viewer 
+    id="viewer" 
+    src="skeleton.glb" 
+    alt="3D Skeleton" 
+    camera-controls 
+    interpolation-decay="200"
+    camera-orbit="0deg 75deg 2.5m"
+    camera-target="0m 1m 0m">
+  </model-viewer>
+
+  <div class="player-box">
+    <audio id="anatomyAudio" controls src="audio.mp3"></audio>
+    <div id="status" class="status-text">Press Play to Start</div>
+  </div>
+
+  <script>
+    const viewer = document.getElementById('viewer');
+    const audio = document.getElementById('anatomyAudio');
+    const status = document.getElementById('status');
+
+    // TIMELINE: Add your timestamps (seconds), Bone Names, and Camera Targets
+    const boneTimeline = [
+      { time: 0.0,  name: "Full Skeleton", target: "0m 1.0m 0m", orbit: "0deg 75deg 2.5m" },
+      { time: 9.1,  name: "Frontal & Cranial Bones", target: "0m 1.6m 0m", orbit: "0deg 75deg 0.8m" },
+      { time: 36.6, name: "Vertebral Column & Ribs", target: "0m 1.3m 0m", orbit: "30deg 75deg 1.2m" },
+      { time: 64.0, name: "Humerus, Radius & Ulna", target: "0.3m 1.2m 0m", orbit: "-30deg 80deg 1.1m" },
+      { time: 96.0, name: "Femur, Tibia & Fibula", target: "0.2m 0.5m 0m", orbit: "0deg 85deg 1.3m" }
+    ];
+
+    let currentIdx = -1;
+
+    // Listen to music playback and shift camera at timestamps
+    audio.addEventListener('timeupdate', () => {
+      const curTime = audio.currentTime;
+
+      const idx = boneTimeline.findIndex((item, i) => {
+        const next = boneTimeline[i + 1];
+        return curTime >= item.time && (!next || curTime < next.time);
+      });
+
+      if (idx !== -1 && idx !== currentIdx) {
+        currentIdx = idx;
+        const activeItem = boneTimeline[idx];
+
+        status.innerText = "Current Focus: " + activeItem.name;
+        viewer.cameraTarget = activeItem.target;
+        viewer.cameraOrbit = activeItem.orbit;
+      }
+    });
+  </script>
+
+</body>
+</html>
